@@ -1,7 +1,7 @@
 // server.js (Node.js - Express - Vercel Function)
 import express from 'express';
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs'; // Changed to bcryptjs
 import cors from 'cors';
 
 const app = express();
