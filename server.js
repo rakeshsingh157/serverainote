@@ -1,4 +1,4 @@
-// server.js (Node.js - Express)
+// server.js (Node.js - Express - Vercel Function)
 import express from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
@@ -58,6 +58,4 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
-});
+export default app; // Export for Vercel
