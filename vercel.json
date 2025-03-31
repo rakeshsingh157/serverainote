@@ -1,19 +1,19 @@
 {
     "version": 2,
+    "env": {
+      "MONGODB_URI": "mongodb+srv://username:password@cluster.mongodb.net/databaseName?retryWrites=true&w=majority"
+    },
     "builds": [
       {
-        "src": "api/*.js",
+        "src": "server.js",
         "use": "@vercel/node"
       }
     ],
     "routes": [
       {
-        "src": "/api/signup",
-        "dest": "/api/signup.js"
-      },
-      {
-        "src": "/api/login",
-        "dest": "/api/login.js"
+        "src": "/api/(.*)",
+        "dest": "server.js"
       }
     ]
   }
+  

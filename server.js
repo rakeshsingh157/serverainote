@@ -1,61 +1,83 @@
-// server.js (Node.js - Express - Vercel Function)
+// server.js
+
 import express from 'express';
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs'; // Changed to bcryptjs
+import bcrypt from 'bcryptjs';
 import cors from 'cors';
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// MongoDB Connection
-const mongoUri = 'mongodb+srv://kumarpatelrakesh222:tY1RTSoZm8Pvn10L@ainodemate.nu7glsf.mongodb.net/?retryWrites=true&w=majority&appName=ainodemate';
+// ✅ MongoDB Connection
+const mongoUri = process.env.MONGODB_URI || 'YOUR_MONGODB_URI_HERE';
 
-mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.log(err));
+mongoose.connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+    .then(() => console.log('✅ MongoDB Connected'))
+    .catch(error => {
+        console.error('❌ MongoDB Connection Error:', error);
+        process.exit(1);
+    });
 
-// User Schema and Model
+// ✅ User Schema and Model
 const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
 });
 
 const User = mongoose.model('User', userSchema);
 
-// Signup Route
+// ✅ Signup Route
 app.post('/api/signup', async (req, res) => {
-  const { username, password } = req.body;
+    const { username, password } = req.body;
 
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ username, password: hashedPassword });
-    await user.save();
-    res.json({ message: 'Signup successful' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    try {
+        // Check for existing user
+        if (await User.findOne({ username })) {
+            return res.status(400).json({ error: 'Username already taken' });
+        }
+
+        // Hash password and save user
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ username, password: hashedPassword });
+        await newUser.save();
+        
+        res.status(201).json({ message: 'Signup successful' });
+    } catch (error) {
+        console.error('❌ Error in Signup:', error);
+        res.status(500).json({ error: 'Server Error' });
+    }
 });
 
-// Login Route
+// ✅ Login Route
 app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
+    const { username, password } = req.body;
 
-  try {
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    try {
+        // Check if user exists
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        // Verify password
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        res.json({ message: 'Login successful' }); // JWT can be added later
+    } catch (error) {
+        console.error('❌ Error in Login:', error);
+        res.status(500).json({ error: 'Server Error' });
     }
-
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    res.json({ message: 'Login successful' }); // In a real app, generate and send a JWT
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
-export default app; // Export for Vercel
+app.get("/", (req, res) => {
+    res.send("🚀 AI Notemate API is live");
+});
+
+export default app;
