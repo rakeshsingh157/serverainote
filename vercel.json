@@ -2,15 +2,22 @@
     "version": 2,
     "builds": [
       {
-        "src": "server.js",
-        "use": "@vercel/node"
+        "src": "api/*.js",
+        "use": "@vercel/node",
+        "config": {
+          "includeFiles": ["node_modules/bcrypt/lib/binding/napi-v3/bcrypt_lib.node"],
+          "buildCommand": "npm install --build-from-source bcrypt"
+        }
       }
     ],
     "routes": [
       {
-        "src": "/(.*)",
-        "dest": "server.js"
+        "src": "/api/signup",
+        "dest": "/api/signup.js"
+      },
+      {
+        "src": "/api/login",
+        "dest": "/api/login.js"
       }
     ]
   }
-  
