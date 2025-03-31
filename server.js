@@ -12,7 +12,7 @@ app.use(cors());
 // ✅ MongoDB Connection
 const mongoUri =  'mongodb+srv://kumarpatelrakesh222:tY1RTSoZm8Pvn10L@ainodemate.nu7glsf.mongodb.net/?retryWrites=true&w=majority&appName=ainodemate';
 
-mongoose.connect(mongoUri, 
+mongoose.connect(mongoUri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
